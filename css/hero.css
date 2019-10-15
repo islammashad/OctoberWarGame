@@ -1,0 +1,68 @@
+html, body {
+    margin: 0; 
+    padding: 0;
+    overflow: hidden;
+    box-sizing: content-box;
+    background-image: url("../images/cover.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+
+.container{
+  margin-top: 350px;
+  margin-left: 500px;
+}
+.block{
+float: left;
+text-align: center;
+padding: 10px 50px 80px 50px;
+margin: 10px 35px;
+height: 300px;
+width: 300px;
+cursor: pointer;
+background-color: rgba(20, 30, 10, 0.2);
+padding: 0 35px;
+border-radius: 5px;
+border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.block:hover{
+  transition: all .5s linear;
+  background-color: rgba(20, 30, 10, 0.4);
+  border: 2px solid white;
+}
+
+h1{
+color:white;
+font-family: Stencil Std, fantasy;
+} 
+img{
+margin: 10px;
+} 
+.rotateimage1 {
+  transform: scaleX(-1);
+ animation: rotateplane 6s linear infinite;
+
+}
+
+.rotateimage2 {
+  animation: rotatetank 6s linear infinite;
+ 
+}
+
+.rotateimage1:hover,.rotateimage2:hover{
+
+  animation: rotatetank 0s linear infinite;
+}
+
+  @keyframes rotateplane {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(-360deg); }
+}
+@keyframes rotatetank {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+ 

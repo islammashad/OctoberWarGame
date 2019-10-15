@@ -1,0 +1,43 @@
+html, body {
+    margin: 0; 
+    padding: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    background-image: url("../images/cover.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+
+
+.container1{
+  margin-top: 200PX;
+  margin-left: 20PX;
+}
+
+.hero1{
+  float: left;
+  background-color:rgba(0, 0, 0, 0.5);
+  text-align: center;
+  padding: 10px 50px 80px 50px;
+  margin: 10px 35px;
+  height: 550PX;
+  width: 300px;
+  background-color: rgba(20, 30, 10, 0.5);
+border-radius: 5px;
+border: 1px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  }
+
+  .hero1:hover{
+    transition: all .5s linear;
+    background-color: rgba(20, 30, 10, 0.4);
+    border: 2px solid white;
+  }
+h2 {
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  color: white;
+}
+img{
+margin: 10px;
+} 
