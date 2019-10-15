@@ -197,3 +197,65 @@ function enemyHit(bullet) {
 
 	}
 }
+
+//score interval
+setInterval(() => {
+	if (alive) {
+		score += 1;
+	}
+}, 150);
+
+function Bullet() {
+	this.x;
+	this.y;
+	this.xDelta = 0;
+	this.yDelta = 0;
+
+	this.xTarget;
+	this.yTarget;
+	this.draw = function (isEnemy) {
+			bullet.src = isEnemy ?  "../images/enemyfire.png"  : "../images/fire.png" ;
+		ctx.drawImage(bullet, this.x, this.y);
+	};
+}
+
+Bullet.prototype.setCoordinates = function (x, y, xTarget, yTarget) {
+	this.x = x;
+	this.y = y;
+	this.xTarget = xTarget;
+	this.yTarget = yTarget;
+}
+
+
+Bullet.prototype.setDeltas = function () {
+	var diffY = this.y - this.yTarget;
+	var diffX = this.x - this.xTarget;
+	var distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
+	this.xDelta = (12 * diffX) / distance;
+	this.yDelta = (12 * diffY) / distance;
+};
+
+Bullet.prototype.moveBullet = function () {
+	this.x -= this.xDelta;
+	this.y -= this.yDelta;
+};
+
+Bullet.prototype.wallCollision = function (bullet) {
+	if (bullet.x > canvas.width || bullet.x < 0) {
+		return true;
+	}
+	if (bullet.y > canvas.height || bullet.y < 0) {
+		return true;
+	}
+	else return false;
+};
+
+
+function fireBullet() {
+	var newBullet = new Bullet();
+	newBullet.setCoordinates(playerX + 100, playerY + 50, xCoo - ((screen.width - 1500) / 2) - 10, yCoo - 20)
+	newBullet.setDeltas();
+	liveBullets.push(newBullet);
+};
+var xCoo;
+var yCoo;
