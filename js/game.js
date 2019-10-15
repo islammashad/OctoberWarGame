@@ -123,45 +123,6 @@ if(event.code=="Space"){
  }
 
  
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
 function playerHit(bullet) {
 	if (bullet) {
 		if (bullet.x >= playerX + 20 && bullet.x < playerX + player.width - 10
@@ -259,3 +220,80 @@ function fireBullet() {
 };
 var xCoo;
 var yCoo;
+
+canvas.addEventListener('click', function (event) {
+	xCoo = event.clientX;
+	yCoo = event.clientY;
+	fireBullet();
+}, false);
+
+function makeEnemyGenerateInterval() {
+	enemyGenerateInterval = setInterval(() => {
+		enemies.push({
+			x: cvs.width,
+			y: Math.floor(Math.random() * 550),
+			live: enemiesLive,
+			shoot: 0,
+			type: 'plane'
+		});
+	}, enemyGenerateTime);
+}
+
+function makeEnemyBulletsGenerateInterval() {
+	enemiesBulletsGenerateInterval = setInterval(() => {
+		for (i = 0; i < enemies.length; i++) {
+			if (enemies[i].shoot == 0) {
+				enemies[i].shoot = 3;
+				var enemyBullet = new Bullet();
+				enemyBullet.setCoordinates(enemies[i].x + 50, enemies[i].y + 50,
+					playerX + Math.random() * player.width + 50,
+					playerY + Math.random() * player.height + 50);
+
+				enemyBullet.setDeltas();
+				enemiesBullets.push(enemyBullet);
+			}
+			else {
+				enemies[i].shoot--;
+			}
+		}
+	}, bulletGenerateTime);
+}
+
+
+//stamina drain interval
+staminaDrainInterval = setInterval(() => {
+	stamina -= 1;
+	if (stamina == 0) {
+		live--;
+		stamina = 100;
+	}
+
+}, 1000);
+
+
+//fuel supply interval
+setInterval(() => {
+	fuelX = Math.random() * 1400 + 20;
+	fuelY = character == 'tank' ? 730 : Math.random() * 200 + 20;
+	supplyFuel = true;
+	setTimeout(function () {
+
+		supplyFuel = false;
+
+	}, 5000);
+
+}, 25000);
+
+//night effect interval
+function makeNightInterval() {
+	nightInterval = setInterval(() => {
+
+		isNight = true;
+		isDay = false;
+		clearInterval(nightInterval);
+
+	}, 30000);
+}
+makeNightInterval();
+makeEnemyGenerateInterval();
+makeEnemyBulletsGenerateInterval();
