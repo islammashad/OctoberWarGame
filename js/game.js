@@ -1,5 +1,13 @@
 var cvs = document.getElementById("canvas");
 var ctx = cvs.getContext("2d");
+
+var c = decodeURIComponent(window.location.search).substr(3,5);
+
+
+var character = c!='' ? c : 'plane';
+ 
+
+
 var player = new Image();
 var enemy = new Image();
 var bullet = new Image();
@@ -18,12 +26,16 @@ var gameAudio = new Audio('../sounds/war.mp3');
 var hitAudio = new Audio('../sounds/hit.wav');
 
 
+var fuelX;
+var fuelY;
 
-
-
-
-
-
+var live = 3;
+var stamina = 100;
+var enemiesLive = 3;
+var score = 0;
+var night = 0;
+var bulletGenerateTime = 1500;
+var enemyGenerateTime = 4000;
 
 
 
@@ -38,7 +50,19 @@ var isDay = true;
 var masterMode = false;
 
 
+var playerY = character == 'tank' ? 698 : canvas.height / 2;
+var playerX = 100;
 
+
+
+var liveBullets = [];
+var enemiesBullets = [];
+var enemies = [];
+
+var enemyGenerateInterval;
+var enemiesBulletsGenerateInterval;
+var staminaDrainInterval;
+var nightInterval;
 
 
 document.addEventListener("keydown", keyDownHandler);
@@ -122,7 +146,213 @@ if(event.code=="Space"){
 	gameAudio.play();
  }
 
- 
+function draw() {
+	playAudio()
+	
+	ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+	if (leftPressed === true) {
+		moveLeft();
+	}
+	if (rightPressed === true) {
+		moveRight();
+	}
+	if (upPressed === true) {
+		moveUp();
+	}
+	if (downPressed === true) {
+		moveDown();
+	}
+
+
+	//levels enhancing  start
+	if (!masterMode) {
+
+		if (score >= 3000 && enemiesLive != 4) {
+			enemiesLive = 4;
+		}
+		else if (score >= 5000 && enemiesLive != 5) {
+			enemiesLive = 5
+		}
+
+		if (score >= 7000 && bulletGenerateTime == 1500) {
+			bulletGenerateTime = 1000;
+			clearInterval(enemiesBulletsGenerateInterval);
+			makeEnemyBulletsGenerateInterval();
+		}
+		else if (score >= 9000 && bulletGenerateTime == 1000) {
+			bulletGenerateTime = 500;
+			clearInterval(enemiesBulletsGenerateInterval);
+			makeEnemyBulletsGenerateInterval();
+		}
+
+		if (score >= 11000 && enemyGenerateTime == 4000) {
+			enemyGenerateTime = 3500;
+			clearInterval(enemyGenerateInterval);
+			makeEnemyGenerateInterval();
+		}
+		else if (score >= 13000 && enemyGenerateTime == 3500) {
+			enemyGenerateTime = 2500;
+			clearInterval(enemyGenerateInterval);
+			makeEnemyGenerateInterval();
+		}
+		else if (score >= 15000 && enemyGenerateTime == 2500) {
+			enemyGenerateTime = 1500;
+			clearInterval(enemyGenerateInterval);
+			makeEnemyGenerateInterval();
+			masterMode = true;
+		}
+	}
+	//levels enhancing  end
+
+	for (var i = 0; i < enemies.length; i++) {
+
+		if (enemies[i].x < 0 - enemy.width) {
+			enemies.splice(i, 1);
+			score -= 50;
+			if (score <= 0) {
+				score = 0;
+				live--;
+			}
+		}
+
+
+
+
+		for (j = 1; j <= enemies[i].live; j++) {
+			ctx.fillStyle = "#0a0";
+			ctx.fillRect(enemies[i].x + 60 + 15 * j, enemies[i].y + enemy.height + 2, 12, 3);
+		}
+		enemy.src = `../images/enemy${enemies[i].type}.png`;
+		ctx.drawImage(enemy, enemies[i].x, enemies[i].y);
+		enemies[i].x -= 3;
+		if(supplyFuel){
+
+		if (((playerX + player.width > fuelX && playerX + player.width <= fuelX + fuel.width) 
+		|| (fuelX +fuel.width >playerX && fuelX + fuel.width <= playerX + player.width))  
+		&& ((playerY + player.height > fuelY && playerY + player.height <= fuelY + fuel.height) 
+		|| (fuelY + fuel.height > playerY && fuelY + fuel.height <= playerY + player.height))) {
+			stamina = 100;
+			supplyFuel = false;
+		}
+		}
+
+		if (playerX + player.width >= enemies[i].x + 50 && playerX <= enemies[i].x + enemy.width &&
+			(playerY <= enemies[i].y + enemy.height - 20 && playerY + player.height >= enemies[i].y + 20)) {
+			// ctx.drawImage(damage, playerX, playerY);
+			enemies.splice(i, 1);
+			playerX = 200;
+			playerY = character == 'plane' ? Math.floor(Math.random() * canvas.height / 2) : 698;
+			live--;
+			stamina = 100;
+
+		}
+	}
+
+
+	if (supplyFuel) {
+		ctx.drawImage(fuel, fuelX, fuelY);
+	}
+
+
+	ctx.fillStyle = "#0a0";
+	ctx.fillRect(character == 'plane' ? playerX + player.width / 2 - 50 : playerX + 50,
+		character == 'plane' ? playerY + player.height + 2 : playerY, stamina, 3);
+
+	ctx.fillStyle = "#a00";
+	ctx.fillRect(character == 'plane' ? playerX + player.width / 2 - 50 + stamina : playerX + 50 + stamina,
+		character == 'plane' ? playerY + player.height + 2 : playerY, 100 - stamina, 3)
+
+
+
+	for (i = 0; i < enemiesBullets.length; i++) {
+		enemiesBullets[i].draw(true);
+		enemiesBullets[i].moveBullet();
+		if (enemiesBullets[i].wallCollision(enemiesBullets[i]) === true) {
+			enemiesBullets.splice(i, 1);
+		}
+
+		if (playerHit(enemiesBullets[i])) {
+			enemiesBullets.splice(i, 1);
+		}
+	}
+
+	for (i = 0; i < liveBullets.length; i++) {
+		liveBullets[i].draw(false);
+		liveBullets[i].moveBullet();
+		if (liveBullets[i].wallCollision(liveBullets[i]) === true) {
+			liveBullets.splice(i, 1);
+		}
+		if (enemyHit(liveBullets[i])) {
+			liveBullets.splice(i, 1);
+		}
+
+
+	}
+
+
+
+	ctx.drawImage(player, playerX, playerY);
+	ctx.fillStyle = "background-color:transparent";
+
+
+
+
+	if (isNight) {
+		if (isDay) {
+			night -= 0.0002;
+		}
+		else {
+			night += 0.0002;
+			if (night >= 0.98)
+				isDay = true;
+		}
+
+		ctx.fillStyle = `rgba(0, 0, 0, ${night})`;
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		if (night <= 0) {
+			isNight = false;
+			makeNightInterval();
+		}
+	}
+
+
+
+	for (i = 0; i < live; i++) {
+		ctx.drawImage(heart, 1350 + (i * 35), 20);
+	}
+
+
+	ctx.font = "20px tahoma";
+	ctx.fillStyle = "#d02";
+	ctx.fillText("Score : " + score, 40, 40);
+
+
+	if (live == 0) {
+		alive = false;
+	}
+
+	function onPause() {
+		if (!alive) {
+	ctx.font = "60px cursive";
+	ctx.fillStyle = "#111";
+	ctx.fillText("Game Over", canvas.width/2.5, canvas.height/3);
+	ctx.fillText("Score : "+ score, canvas.width/2.5, canvas.height/2.3);
+	ctx.fillText("Press space key to play again", canvas.width/4, canvas.height/1.9);
+			document.addEventListener("keydown", reLoad);
+		} else {
+			requestAnimationFrame(draw);
+		}
+	}
+
+	onPause();
+
+}
+
+draw();
+
+
+
 function playerHit(bullet) {
 	if (bullet) {
 		if (bullet.x >= playerX + 20 && bullet.x < playerX + player.width - 10
@@ -158,6 +388,7 @@ function enemyHit(bullet) {
 
 	}
 }
+
 
 //score interval
 setInterval(() => {
@@ -220,7 +451,6 @@ function fireBullet() {
 };
 var xCoo;
 var yCoo;
-
 canvas.addEventListener('click', function (event) {
 	xCoo = event.clientX;
 	yCoo = event.clientY;
@@ -297,3 +527,9 @@ function makeNightInterval() {
 makeNightInterval();
 makeEnemyGenerateInterval();
 makeEnemyBulletsGenerateInterval();
+
+
+
+
+
+

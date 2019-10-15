@@ -1,0 +1,65 @@
+html, body {
+    margin: 0; 
+    padding: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+    background-image: url("../images/cover.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  #background {
+    margin: 10px auto;
+    background: white url("../images/background1.jpg") repeat 0 0;
+    background-size: cover;
+    width: 1500px;
+    height: 950px;
+    border-radius: 10px;
+    border: 1px solid white;
+    animation: move 20s linear infinite;
+    position: relative;
+    cursor: url(../images/aim.cur) , crosshair;
+  }
+button{
+  transition: all .5s ease;
+  color: #fff;
+  border: 3px solid white;
+  font-family:'Montserrat', sans-serif;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1;
+  font-size: 30px;
+  background-color : transparent;
+  padding: 10px;
+  cursor: pointer;
+  outline: none;
+  width: 500px;
+  border-radius: 20px;
+  position: absolute;
+}
+button:hover {
+  color: #001F3F;
+  background-color:#e35239;
+}
+.btn1{
+  margin-top: 600px;
+  margin-left: 37%;
+
+}
+.btn2{
+  margin-top: 670px;
+    margin-left: 37%;
+
+}
+.btn3{
+  margin-left: 37%;
+    margin-top: 740px;
+}
+
+ 
+  @keyframes move {
+      from { background-position: 0 0; }
+      to { background-position: -1690px 0; }
+  }
+
+
+ 
