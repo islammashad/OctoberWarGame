@@ -1,7 +1,6 @@
 html, body {
     margin: 0; 
     padding: 0;
-    overflow: hidden;
     box-sizing: content-box;
     background-image: url("../images/cover.jpg");
     background-repeat: no-repeat;
